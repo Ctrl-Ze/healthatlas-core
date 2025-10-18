@@ -1,0 +1,20 @@
+# Stage 1: Build native image
+FROM ghcr.io/graalvm/mandrel:23.3.0-java17 AS build
+WORKDIR /app
+
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts settings.gradle.kts ./
+COPY src src
+
+RUN chmod +x gradlew
+RUN ./gradlew build -Dquarkus.package.type=native -x test
+
+# Stage 2: Run native image
+FROM ghcr.io/graalvm/mandrel:23.3.0-java17
+WORKDIR /app
+
+COPY --from=build /app/build/*-runner /app/healthatlas
+
+EXPOSE 8080
+ENTRYPOINT ["./healthatlas"]
