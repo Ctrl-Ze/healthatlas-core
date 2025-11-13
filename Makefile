@@ -1,40 +1,37 @@
-# Variables
-IMAGE_NAME := healthatlas-core
-DOCKERFILE := Dockerfile.jvm
-FALLBACK_DOCKERFILE := Dockerfile.jvm.fallback
+# Makefile for HealthAtlas Athena
+# Usage:
+#   make db-up      → start only Athena DB
+#   make athena-up  → start Athena + DB
+#   make down       → stop and remove all
+#   make logs       → tail logs
 
-# Default target
-restart: docker-down build docker-build docker-up
+DOCKER_COMPOSE := docker-compose -f docker-compose.yml
 
-# Stop running containers
-docker-down:
-	@echo "🛑 Stopping Docker Compose..."
-	docker-compose down || true
+# Start only DB for local dev
+db-up:
+	@echo "💾 Starting Athena DB..."
+	$(DOCKER_COMPOSE) up -d athena-db
 
-# Build project
-build:
-	@echo "📦 Building the project (skipping tests)..."
-	./gradlew build -x test
+# Start Athena and DB
+athena-up:
+	@echo "🧠 Starting Athena service and DB..."
+	$(DOCKER_COMPOSE) up -d healthatlas-core athena-db
 
-# Copy built jar
-copy-jar:
-	@echo "📄 Copying JAR..."
-	cp build/libs/*.jar healthatlas-core.jar
+# Stop all containers
+down:
+	@echo "🛑 Stopping Athena containers..."
+	$(DOCKER_COMPOSE) down
 
-# Docker build with fallback logic
-docker-build: copy-jar
-	@echo "🐳 Building Docker image..."
-	@if docker build -f $(DOCKERFILE) -t $(IMAGE_NAME):latest .; then \
-		echo "✅ Docker image built successfully from $(DOCKERFILE)"; \
-	else \
-		echo "⚠️ Primary build failed — falling back to alternate base image..."; \
-		cp $(DOCKERFILE) $(FALLBACK_DOCKERFILE); \
-		sed -i.bak 's|FROM eclipse-temurin:21-jre|FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu|' $(FALLBACK_DOCKERFILE); \
-		docker build -f $(FALLBACK_DOCKERFILE) -t $(IMAGE_NAME):latest .; \
-		rm -f $(FALLBACK_DOCKERFILE) $(FALLBACK_DOCKERFILE).bak; \
-	fi
+db:
+	@echo "🗄️ Connecting to Athena DB in docker..."
+	docker exec -it athena-db psql -U postgres -d healthatlas
 
-# Start containers
-docker-up:
-	@echo "🚀 Starting Docker Compose..."
-	docker-compose up -d
+# Tail logs
+logs:
+	@echo "📜 Tailing Athena logs..."
+	$(DOCKER_COMPOSE) logs -f
+
+# Cleanup volumes
+clean:
+	@echo "🧹 Removing Athena containers and volumes..."
+	$(DOCKER_COMPOSE) down -v
