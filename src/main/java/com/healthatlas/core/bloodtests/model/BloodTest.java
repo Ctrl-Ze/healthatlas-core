@@ -1,6 +1,6 @@
 package com.healthatlas.core.bloodtests.model;
 
-import com.healthatlas.core.dto.request.BloodTestDto;
+import com.healthatlas.core.bloodtests.dto.request.BloodTestDto;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 

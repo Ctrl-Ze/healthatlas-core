@@ -1,4 +1,4 @@
-package com.healthatlas.core.dto.request;
+package com.healthatlas.core.bloodtests.dto.request;
 
 import com.healthatlas.core.bloodtests.model.BloodTest;
 
@@ -18,9 +18,5 @@ public class BloodTestDto {
     public static class ResultDTO {
         public String analyte;   // e.g., "HGB"
         public BigDecimal value; // e.g., 13.5
-    }
-
-    public static BloodTest toEntity(BloodTestDto dto, UUID userID) {
-        return new BloodTest(userID, dto.timestamp, dto.confirmed);
     }
 }

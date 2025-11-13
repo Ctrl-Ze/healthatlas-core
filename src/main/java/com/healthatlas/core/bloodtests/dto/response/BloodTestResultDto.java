@@ -1,4 +1,4 @@
-package com.healthatlas.core.dto.response;
+package com.healthatlas.core.bloodtests.dto.response;
 
 import com.healthatlas.core.bloodtests.model.BloodTestResult;
 

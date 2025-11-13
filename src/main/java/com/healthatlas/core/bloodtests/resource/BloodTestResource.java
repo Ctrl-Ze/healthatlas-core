@@ -1,8 +1,8 @@
 package com.healthatlas.core.bloodtests.resource;
 
 import com.healthatlas.core.bloodtests.service.BloodTestService;
-import com.healthatlas.core.dto.request.BloodTestDto;
-import com.healthatlas.core.dto.response.BloodTestResponseDto;
+import com.healthatlas.core.bloodtests.dto.request.BloodTestDto;
+import com.healthatlas.core.bloodtests.dto.response.BloodTestResponseDto;
 import com.healthatlas.core.bloodtests.model.BloodTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
