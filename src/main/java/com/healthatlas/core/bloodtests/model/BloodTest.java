@@ -13,7 +13,6 @@ public class BloodTest extends PanacheEntityBase {
 
     //TODO Add versionNumber & previousVersionId (for versioning workflow)
     //TODO Add confirmedBy (doctor/user who confirmed)
-    // TODO: add validation annotations later
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
@@ -22,7 +21,7 @@ public class BloodTest extends PanacheEntityBase {
     @Column(name = "user_ref", nullable = false)
     public UUID userRef;
 
-    //TODO maybe make it false
+    //TODO maybe make it default false
     @Column(nullable = false)
     public Instant timestamp;
 

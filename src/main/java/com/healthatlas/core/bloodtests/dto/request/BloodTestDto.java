@@ -1,15 +1,12 @@
 package com.healthatlas.core.bloodtests.dto.request;
 
-import com.healthatlas.core.bloodtests.model.BloodTest;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 public class BloodTestDto {
 
-    public UUID userRef;
+    // TODO: add validation annotations later
     public Instant timestamp;
     public boolean confirmed;
 

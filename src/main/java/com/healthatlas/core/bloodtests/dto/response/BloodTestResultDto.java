@@ -1,5 +1,6 @@
 package com.healthatlas.core.bloodtests.dto.response;
 
+import com.healthatlas.core.bloodtests.dto.BloodTestFlatRowDto;
 import com.healthatlas.core.bloodtests.model.BloodTestResult;
 
 import java.math.BigDecimal;
@@ -18,6 +19,16 @@ public record BloodTestResultDto(
                 results.analyte.unit,
                 results.analyte.normalLow,
                 results.analyte.normalHigh
+        );
+    }
+
+    public static BloodTestResultDto from(BloodTestFlatRowDto rows) {
+        return new BloodTestResultDto(
+                rows.analyteName(),
+                rows.value(),
+                rows.unit(),
+                rows.normalLow(),
+                rows.normalHigh()
         );
     }
 }

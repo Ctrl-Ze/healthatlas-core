@@ -3,7 +3,6 @@ package com.healthatlas.core.bloodtests.resource;
 import com.healthatlas.core.bloodtests.service.BloodTestService;
 import com.healthatlas.core.bloodtests.dto.request.BloodTestDto;
 import com.healthatlas.core.bloodtests.dto.response.BloodTestResponseDto;
-import com.healthatlas.core.bloodtests.model.BloodTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -21,7 +20,7 @@ public class BloodTestResource {
 
     @Path("mine")
     @GET
-    public List<BloodTest> getMine(@Context SecurityContext ctx) {
+    public List<BloodTestResponseDto> getMine(@Context SecurityContext ctx) {
         return bloodTestService.getBloodTestsPerUser(ctx);
     }
 

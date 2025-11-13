@@ -1,13 +1,13 @@
 package com.healthatlas.core.bloodtests.service;
 
 import com.healthatlas.core.bloodtests.cache.AnalyteCache;
-import com.healthatlas.core.bloodtests.repository.BloodTestRepository;
-import com.healthatlas.core.bloodtests.repository.BloodTestResultRepository;
 import com.healthatlas.core.bloodtests.dto.request.BloodTestDto;
 import com.healthatlas.core.bloodtests.dto.response.BloodTestResponseDto;
 import com.healthatlas.core.bloodtests.model.Analyte;
 import com.healthatlas.core.bloodtests.model.BloodTest;
 import com.healthatlas.core.bloodtests.model.BloodTestResult;
+import com.healthatlas.core.bloodtests.repository.BloodTestRepository;
+import com.healthatlas.core.bloodtests.repository.BloodTestResultRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -29,9 +29,12 @@ public class BloodTestService {
     @Inject
     AnalyteCache analyteCache;
 
-    public List<BloodTest> getBloodTestsPerUser(SecurityContext ctx) {
+    public List<BloodTestResponseDto> getBloodTestsPerUser(SecurityContext ctx) {
         UUID userId = getCurrentUserUuid(ctx);
-        return bloodTestRepository.listByUser(userId);
+
+        var res = bloodTestRepository.findDetailedBloodTestsByUserId(userId);
+
+        return BloodTestResponseDto.from(res);
     }
 
     @Transactional
