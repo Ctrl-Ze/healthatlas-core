@@ -26,6 +26,7 @@ public class BloodTestRepository implements PanacheRepositoryBase<BloodTest, UUI
                     LEFT JOIN BloodTestResult btr ON btr.bloodTest.id = bt.id
                     LEFT JOIN Analyte a ON a.id = btr.analyte.id
                     WHERE bt.userRef = :userId
+                    ORDER BY bt.timestamp DESC
                 """, BloodTestFlatRowDto.class)
                 .setParameter("userId", userId)
                 .getResultList();

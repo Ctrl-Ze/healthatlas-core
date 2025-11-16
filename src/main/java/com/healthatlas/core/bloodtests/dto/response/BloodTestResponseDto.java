@@ -36,7 +36,10 @@ public record BloodTestResponseDto(
         }
 
         return rows.stream()
-                .collect(Collectors.groupingBy(BloodTestFlatRowDto::id))
+                .collect(Collectors.groupingBy(
+                        BloodTestFlatRowDto::id,
+                        LinkedHashMap::new,
+                        Collectors.toList()))
                 .values().stream()
                 .map(group -> {
                     var first = group.getFirst();
