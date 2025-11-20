@@ -23,13 +23,20 @@ dependencies {
     // Hibernate ORM specific dependencies
     implementation("io.quarkus:quarkus-hibernate-orm-panache")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
+    implementation("io.quarkus:quarkus-hibernate-validator")
 
     implementation ("io.quarkus:quarkus-smallrye-jwt")
+    implementation ("io.quarkus:quarkus-smallrye-jwt-build")
     implementation ("io.quarkus:quarkus-security")
     implementation ("io.quarkus:quarkus-flyway")
 
+    implementation ("io.quarkus:quarkus-opentelemetry")
+
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("io.quarkus:quarkus-junit5-mockito")
 }
 
 group = "com.healthatlas"

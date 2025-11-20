@@ -29,6 +29,7 @@ public class BloodTestService {
     @Inject
     AnalyteCache analyteCache;
 
+    // TODO add pagination
     public List<BloodTestResponseDto> getBloodTestsPerUser(SecurityContext ctx) {
         UUID userId = getCurrentUserUuid(ctx);
 
@@ -40,10 +41,6 @@ public class BloodTestService {
     @Transactional
     public BloodTestResponseDto createBloodTest(SecurityContext ctx, BloodTestDto dto) {
         UUID userId = getCurrentUserUuid(ctx);
-
-        if (dto.results == null || dto.results.isEmpty()) {
-            throw new IllegalArgumentException("At least one analyte result is required.");
-        }
 
         var results = dto.results.stream()
                 .map(resDTO -> {
