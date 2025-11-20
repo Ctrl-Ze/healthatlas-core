@@ -21,7 +21,7 @@ public class TraceIdFilter implements ContainerRequestFilter, ContainerResponseF
     public static final String TRACE_ID = "X-Trace-Id";
 
     @Override
-    public void filter(ContainerRequestContext containerRequestContext) throws IOException {
+    public void filter(ContainerRequestContext containerRequestContext) {
         String traceId = getActiveTraceId();
 
         if (traceId == null || traceId.isBlank()) {
@@ -36,8 +36,7 @@ public class TraceIdFilter implements ContainerRequestFilter, ContainerResponseF
     }
 
     @Override
-    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext)
-            throws IOException {
+    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) {
         String traceId = (String) containerRequestContext.getProperty(TRACE_ID);
 
         if (traceId != null) {
