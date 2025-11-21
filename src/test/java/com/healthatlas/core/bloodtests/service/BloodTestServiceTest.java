@@ -1,0 +1,214 @@
+package com.healthatlas.core.bloodtests.service;
+
+
+import com.healthatlas.core.bloodtests.cache.AnalyteCache;
+import com.healthatlas.core.bloodtests.dto.BloodTestFlatRowDto;
+import com.healthatlas.core.bloodtests.dto.request.BloodTestDto;
+import com.healthatlas.core.bloodtests.dto.response.BloodTestResponseDto;
+import com.healthatlas.core.bloodtests.dto.response.BloodTestResultDto;
+import com.healthatlas.core.bloodtests.model.Analyte;
+import com.healthatlas.core.bloodtests.model.BloodTest;
+import com.healthatlas.core.bloodtests.model.BloodTestResult;
+import com.healthatlas.core.bloodtests.repository.AnalyteRepository;
+import com.healthatlas.core.bloodtests.repository.BloodTestRepository;
+import com.healthatlas.core.bloodtests.repository.BloodTestResultRepository;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@QuarkusTest
+class BloodTestServiceTest {
+
+    @InjectMock
+    AnalyteRepository analyteRepository;
+
+    @InjectMock
+    BloodTestRepository bloodTestRepository;
+
+    @InjectMock
+    BloodTestResultRepository bloodTestResultRepository;
+
+    @InjectMock
+    AnalyteCache analyteCache;
+
+    @Inject
+    BloodTestService bloodTestService;
+
+    @Test
+    void shouldReturnBloodTestsForUser() {
+        // given
+        UUID userId = UUID.randomUUID();
+        UUID bloodTestId = UUID.randomUUID();
+        UUID bloodTestId2 = UUID.randomUUID();
+
+        SecurityContext ctx = Mockito.mock(SecurityContext.class);
+        JsonWebToken jwt = Mockito.mock(JsonWebToken.class);
+
+        var now = Instant.now();
+        var tomorrow = now.plus(1, ChronoUnit.DAYS);
+
+        var rows = List.of(
+                new BloodTestFlatRowDto(bloodTestId, false, tomorrow, now, now, "HGB",
+                        new BigDecimal("13.5"), "g/dL", new BigDecimal("12.0"), new BigDecimal("17.5")),
+                new BloodTestFlatRowDto(bloodTestId, false, tomorrow, now, now, "RBC",
+                        new BigDecimal("4.7"), "10^6/uL", new BigDecimal("4.2"), new BigDecimal("5.9")),
+                new BloodTestFlatRowDto(bloodTestId2, false, now, now, now, "HGB",
+                        new BigDecimal("16"), "g/dL", new BigDecimal("12.0"), new BigDecimal("17.5")),
+                new BloodTestFlatRowDto(bloodTestId2, false, now, now, now, "RBC",
+                        new BigDecimal("5"), "10^6/uL", new BigDecimal("4.2"), new BigDecimal("5.9"))
+        );
+
+        // when
+        Mockito.when(ctx.getUserPrincipal()).thenReturn(jwt);
+        Mockito.when(jwt.getClaim("user_id")).thenReturn(userId.toString());
+
+        Mockito.when(bloodTestRepository.findDetailedBloodTestsByUserId(userId)).thenReturn(rows);
+
+        var response = bloodTestService.getBloodTestsPerUser(ctx);
+
+        //then
+        assertNotNull(response);
+        verify(bloodTestRepository, times(1)).findDetailedBloodTestsByUserId((userId));
+        assertEquals(2, response.size());
+        assertEquals(2, response.get(0).results().size());
+        assertEquals(2, response.get(1).results().size());
+
+        //Validate First test
+        assertResponseMatches(rows.get(0), response.get(0));
+        assertResultMatches(rows.get(0), response.get(0).results().get(0));
+        assertResponseMatches(rows.get(1), response.get(0));
+        assertResultMatches(rows.get(1), response.get(0).results().get(1));
+
+        //Validate Second test
+        assertResponseMatches(rows.get(2), response.get(1));
+        assertResultMatches(rows.get(2), response.get(1).results().get(0));
+        assertResponseMatches(rows.get(3), response.get(1));
+        assertResultMatches(rows.get(3), response.get(1).results().get(1));
+    }
+
+    @Test
+    void shouldThrowBloodTestsNotFound() {
+        // given
+        UUID userId = UUID.randomUUID();
+
+        SecurityContext ctx = Mockito.mock(SecurityContext.class);
+        JsonWebToken jwt = Mockito.mock(JsonWebToken.class);
+
+        // when
+        Mockito.when(ctx.getUserPrincipal()).thenReturn(jwt);
+        Mockito.when(jwt.getClaim("user_id")).thenReturn(userId.toString());
+
+        Mockito.when(bloodTestRepository.findDetailedBloodTestsByUserId(userId)).thenReturn(Collections.EMPTY_LIST);
+
+        //then
+        assertThrows(NotFoundException.class, () -> bloodTestService.getBloodTestsPerUser(ctx));
+    }
+
+    @Test
+    void shouldCreateBloodTestSuccessfully() {
+        //given
+        UUID userId = UUID.randomUUID();
+
+        SecurityContext ctx = Mockito.mock(SecurityContext.class);
+        JsonWebToken jwt = Mockito.mock(JsonWebToken.class);
+
+        var resultHgb = new BloodTestDto.ResultDto();
+        resultHgb.analyte = "HGB";
+        resultHgb.value = new BigDecimal("13.5");
+
+        var resultRbc = new BloodTestDto.ResultDto();
+        resultRbc.analyte = "RBC";
+        resultRbc.value = new BigDecimal("4.8");
+
+        var dto = new BloodTestDto();
+        dto.timestamp = Instant.now();
+        dto.confirmed = false;
+        dto.results = List.of(resultHgb, resultRbc);
+
+        //TODO create complete analytes
+        Analyte hgb = new Analyte();
+        hgb.id = UUID.randomUUID();
+        hgb.name = "HGB";
+
+        Analyte rbc = new Analyte();
+        rbc.id = UUID.randomUUID();
+        rbc.name = "RBC";
+
+
+        //when
+        Mockito.when(ctx.getUserPrincipal()).thenReturn(jwt);
+        Mockito.when(jwt.getClaim("user_id")).thenReturn(userId.toString());
+
+        Mockito.when(analyteCache.get("HGB")).thenReturn(hgb);
+        Mockito.when(analyteCache.get("RBC")).thenReturn(rbc);
+
+        // Capture arguments going into persist()
+        ArgumentCaptor<BloodTest> bloodTestCaptor = ArgumentCaptor.forClass(BloodTest.class);
+        ArgumentCaptor<List<BloodTestResult>> resultsCaptor = ArgumentCaptor.forClass(List.class);
+
+
+        var response = bloodTestService.createBloodTest(ctx, dto);
+
+        //then
+        assertNotNull(response);
+        assertEquals(2, response.results().size());
+
+        // Verify BloodTestResult persisted
+        verify(bloodTestRepository, times(1)).persist(bloodTestCaptor.capture());
+        BloodTest persisted = bloodTestCaptor.getValue();
+
+        assertEquals(dto.timestamp, persisted.timestamp);
+        assertEquals(dto.confirmed, persisted.confirmed);
+        assertEquals(userId, persisted.userRef);
+
+        // Verify BloodTestResult persisted
+        verify(bloodTestResultRepository, times(1)).persist(resultsCaptor.capture());
+        List<BloodTestResult> persistedResults = resultsCaptor.getValue();
+
+        assertEquals(2, persistedResults.size());
+        assertSame(persisted, persistedResults.get(0).bloodTest);
+        assertSame(persisted, persistedResults.get(1).bloodTest);
+
+        // Verify analytes were looked up
+        verify(analyteCache).get("HGB");
+        verify(analyteCache).get("RBC");
+
+        // Validate DTO mapping
+        assertEquals("HGB", response.results().get(0).analyte());
+        assertEquals("RBC", response.results().get(1).analyte());
+
+        verifyNoMoreInteractions(bloodTestRepository, bloodTestResultRepository);
+    }
+
+    private void assertResponseMatches(BloodTestFlatRowDto source, BloodTestResponseDto response) {
+        assertEquals(source.id(), response.id());
+        assertEquals(source.confirmed(), response.confirmed());
+        assertEquals(source.timestamp(), response.timestamp());
+        assertEquals(source.updatedAt(), response.updatedAt());
+        assertEquals(source.createdAt(), response.createdAt());
+    }
+
+    private void assertResultMatches(BloodTestFlatRowDto source, BloodTestResultDto result) {
+        assertEquals(source.analyteName(), result.analyte());
+        assertEquals(source.value(), result.value());
+        assertEquals(source.unit(), result.unit());
+        assertEquals(source.normalLow(), result.normalLow());
+        assertEquals(source.normalHigh(), result.normalHigh());
+    }
+}
