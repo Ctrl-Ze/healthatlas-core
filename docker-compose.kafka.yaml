@@ -1,0 +1,60 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
+    ports:
+      - "9092:9092"        # External
+      - "29092:29092"      # Internal
+    networks:
+      - healthatlas
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      # KRaft cluster
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      CLUSTER_ID: "4L6g3nShT-eMCtK--X86qw"
+
+      # Listeners
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      # 👈 THIS FIXES YOUR ERROR
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      # Dev mode
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+      # Required for single-node dev mode
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # Storage
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+
+  # --- Console UI ---
+  redpanda-console:
+    image: redpandadata/console:latest   # ✔ Correct image
+    container_name: redpanda-console
+    ports:
+      - "9090:8080"
+    networks:
+      - healthatlas
+    environment:
+      KAFKA_BROKERS: "kafka:29092"
+    depends_on:
+      - kafka
+
+networks:
+  healthatlas:
+    external: true
+
+volumes:
+  kafka-data:

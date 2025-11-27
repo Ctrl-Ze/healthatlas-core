@@ -35,3 +35,11 @@ logs:
 clean:
 	@echo "🧹 Removing Athena containers and volumes..."
 	$(DOCKER_COMPOSE) down -v
+
+kafka:
+	@echo "Starting Kafka..."
+	docker compose -f docker-compose.kafka.yaml up -d
+
+kafka-logs:
+	@echo "📜 Tailing Kafka logs..."
+	docker compose -f docker-compose.kafka.yaml logs -f

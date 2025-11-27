@@ -32,6 +32,10 @@ dependencies {
 
     implementation ("io.quarkus:quarkus-opentelemetry")
 
+    implementation("io.quarkus:quarkus-messaging-kafka")
+    implementation("io.quarkus:quarkus-kafka-client")
+
+
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("org.testcontainers:junit-jupiter")

@@ -5,11 +5,15 @@ quarkus:
       origins: http://localhost:5173
       methods: GET,POST,PUT,DELETE
       headers: accept,authorization,content-type
+    port: 8082
   flyway:
     migrate-at-start: true
     locations: db/migration
   smallrye-jwt:
     enabled: true
+  kafka:
+    devservices:
+      enabled: false
 
   # --- Database ---
   datasource:
@@ -34,3 +38,15 @@ mp:
       publickey:
         location: publicKey.pem
       issuer: healthatlas
+  messaging:
+    outgoing:
+      blood-test-events:
+        connector: smallrye-kafka
+        topic: blood-test.recorded
+        value:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+        bootstrap:
+          servers:
+            localhost:9092

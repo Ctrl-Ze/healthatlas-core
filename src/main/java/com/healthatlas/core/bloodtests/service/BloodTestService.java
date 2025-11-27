@@ -3,6 +3,8 @@ package com.healthatlas.core.bloodtests.service;
 import com.healthatlas.core.bloodtests.cache.AnalyteCache;
 import com.healthatlas.core.bloodtests.dto.request.BloodTestDto;
 import com.healthatlas.core.bloodtests.dto.response.BloodTestResponseDto;
+import com.healthatlas.core.bloodtests.events.BloodTestRecordedEvent;
+import com.healthatlas.core.bloodtests.events.KafkaEventProducer;
 import com.healthatlas.core.bloodtests.model.Analyte;
 import com.healthatlas.core.bloodtests.model.BloodTest;
 import com.healthatlas.core.bloodtests.model.BloodTestResult;
@@ -13,6 +15,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +24,7 @@ import java.util.UUID;
 @ApplicationScoped
 public class BloodTestService {
 
+    private static final Logger log = LoggerFactory.getLogger(BloodTestService.class);
     @Inject
     BloodTestRepository bloodTestRepository;
 
@@ -28,6 +33,9 @@ public class BloodTestService {
 
     @Inject
     AnalyteCache analyteCache;
+
+    @Inject
+    KafkaEventProducer kafkaEventProducer;
 
     // TODO add pagination
     public List<BloodTestResponseDto> getBloodTestsPerUser(SecurityContext ctx) {
@@ -54,6 +62,13 @@ public class BloodTestService {
 
         results.forEach(r -> r.bloodTest = bloodTest);
         bloodTestResultRepository.persist(results);
+
+        kafkaEventProducer.send(new BloodTestRecordedEvent(
+                bloodTest.id,
+                userId,
+                bloodTest.timestamp
+        ));
+        log.info("Event was sent to Kafka");
 
         return BloodTestResponseDto.from(bloodTest, results);
     }

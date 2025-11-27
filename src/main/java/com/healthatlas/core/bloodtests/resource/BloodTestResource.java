@@ -20,7 +20,7 @@ public class BloodTestResource {
 
     @GET
     @Path("mine")
-    @RolesAllowed({"user", "doctor", "admin"})
+    @RolesAllowed({"USER", "DOCTOR", "ADMIN"})
     public Response getMine(@Context SecurityContext ctx) {
         var response = bloodTestService.getBloodTestsPerUser(ctx);
         return Response.status(Response.Status.OK)
@@ -29,7 +29,7 @@ public class BloodTestResource {
     }
 
     @POST
-    @RolesAllowed("user")
+    @RolesAllowed("USER")
     public Response create(@Context SecurityContext ctx, @Valid BloodTestDto bloodTestDto) {
         var bloodTest = bloodTestService.createBloodTest(ctx, bloodTestDto);
         return Response.status(Response.Status.CREATED)
