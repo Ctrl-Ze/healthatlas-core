@@ -15,6 +15,7 @@ quarkus:
     devservices:
       enabled: false
 
+
   # --- Database ---
   datasource:
     db-kind: postgresql

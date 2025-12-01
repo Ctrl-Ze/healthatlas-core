@@ -20,6 +20,6 @@ public final class TestTokenFactory {
     }
 
     public static String createUserToken(UUID userId) {
-        return createToken(userId, List.of("user"));
+        return createToken(userId, List.of("USER"));
     }
 }

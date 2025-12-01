@@ -1,11 +1,11 @@
 package com.healthatlas.core.bloodtests.util;
 
-import com.healthatlas.core.bloodtests.model.Analyte;
-import com.healthatlas.core.bloodtests.model.BloodTest;
-import com.healthatlas.core.bloodtests.model.BloodTestResult;
-import com.healthatlas.core.bloodtests.repository.AnalyteRepository;
-import com.healthatlas.core.bloodtests.repository.BloodTestRepository;
-import com.healthatlas.core.bloodtests.repository.BloodTestResultRepository;
+import com.healthatlas.core.bloodtests.domain.model.Analyte;
+import com.healthatlas.core.bloodtests.domain.model.BloodTest;
+import com.healthatlas.core.bloodtests.domain.model.BloodTestResult;
+import com.healthatlas.core.bloodtests.adapters.outbound.db.AnalyteRepositoryAdapter;
+import com.healthatlas.core.bloodtests.adapters.outbound.db.BloodTestRepositoryAdapter;
+import com.healthatlas.core.bloodtests.adapters.outbound.db.BloodTestResultRepositoryAdapter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -19,11 +19,11 @@ import java.util.UUID;
 public class TestDataFactory {
 
     @Inject
-    AnalyteRepository analyteRepository;
+    AnalyteRepositoryAdapter analyteRepository;
     @Inject
-    BloodTestRepository bloodTestRepository;
+    BloodTestRepositoryAdapter bloodTestRepository;
     @Inject
-    BloodTestResultRepository resultRepository;
+    BloodTestResultRepositoryAdapter resultRepository;
 
     @Transactional
     public BloodTest createBloodTest(UUID userId, Instant timestamp, Map<String, BigDecimal> values) {

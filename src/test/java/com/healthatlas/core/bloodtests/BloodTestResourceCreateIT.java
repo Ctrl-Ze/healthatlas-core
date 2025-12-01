@@ -1,6 +1,6 @@
 package com.healthatlas.core.bloodtests;
 
-import com.healthatlas.core.bloodtests.dto.request.BloodTestDto;
+import com.healthatlas.core.bloodtests.adapters.inbound.rest.dto.request.BloodTestDto;
 import com.healthatlas.core.bloodtests.util.PostgresTestResource;
 import com.healthatlas.core.bloodtests.util.TestKeyResource;
 import com.healthatlas.core.bloodtests.util.TestTokenFactory;
