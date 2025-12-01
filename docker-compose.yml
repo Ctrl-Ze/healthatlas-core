@@ -8,7 +8,7 @@ services:
     image: healthatlas-core:latest
     container_name: athena
     ports:
-      - "8080:8080"                 # host:container (so host 8080 -> container 8080)
+      - "8082:8080"                 # host:container (so host 8082 -> container 8080)
     networks:
       - healthatlas
     environment:

@@ -1,9 +1,11 @@
 # Makefile for HealthAtlas Athena
 # Usage:
-#   make db-up      → start only Athena DB
-#   make athena-up  → start Athena + DB
-#   make down       → stop and remove all
-#   make logs       → tail logs
+#   make db-up     	 	→ start only Athena DB
+#   make athena-up  	→ start Athena + DB
+#   make down       	→ stop and remove all
+#   make logs       	→ tail logs
+#   make kafka      	→ start Kafka
+#   make kafka-logs     → start Kafka
 
 DOCKER_COMPOSE := docker-compose -f docker-compose.yml
 
